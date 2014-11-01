@@ -1,0 +1,20 @@
+
+texture.png
+size: 2108,746
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background-2
+  rotate: false
+  xy: 2, 2
+  size: 1052, 744
+  orig: 1052, 744
+  offset: 0, 0
+  index: -1
+background-start
+  rotate: false
+  xy: 1056, 2
+  size: 1052, 744
+  orig: 1052, 744
+  offset: 0, 0
+  index: -1
