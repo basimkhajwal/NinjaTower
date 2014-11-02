@@ -3,10 +3,15 @@ package net.net63.codearcade.NinjaTower.systems;
 import java.util.Random;
 
 import net.net63.codearcade.NinjaTower.components.BodyComponent;
+import net.net63.codearcade.NinjaTower.components.BoundsComponent;
 import net.net63.codearcade.NinjaTower.components.BuildingComponent;
 import net.net63.codearcade.NinjaTower.components.PlayerComponent;
+import net.net63.codearcade.NinjaTower.components.RenderComponent;
+import net.net63.codearcade.NinjaTower.components.TextureComponent;
 import net.net63.codearcade.NinjaTower.components.WorldComponent;
+import net.net63.codearcade.NinjaTower.utils.Assets;
 import net.net63.codearcade.NinjaTower.utils.Constants;
+import net.net63.codearcade.NinjaTower.utils.Textures;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
@@ -14,6 +19,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -61,10 +68,9 @@ public class BuildingGenerationSystem extends EntitySystem{
 	
 	
 	public void create(){
-		createBuilding(Constants.PLAYER_START_X, Constants.BUILDING_START_WIDTH,Constants.BUILDING_START_HEIGHT);
+		createBuilding(Constants.PLAYER_START_X, Constants.BUILDING_START_WIDTH,Constants.BUILDING_START_HEIGHT, Assets.regions.get(Textures.BUILDINGS[0]));
 		
 		nextChunk = generateChunk(Constants.PLAYER_START_X + Constants.BUILDING_START_WIDTH, Constants.BUILDING_START_HEIGHT);
-	
 		
 		updateChunks();
 	}
@@ -118,10 +124,14 @@ public class BuildingGenerationSystem extends EntitySystem{
 	}
 	
 	//Create buildings that the player walks/jumps on
-	public Entity createBuilding(float x, float width, float height){
+	public Entity createBuilding(float x, float width, float height, TextureRegion texture){
 		Entity building = new Entity();
 		World world = getWorld();
 		
+		//Declare and initialise all the components
+		TextureComponent textureComponent = new TextureComponent();
+		RenderComponent renderComponent = new RenderComponent();
+		BoundsComponent boundsComponent = new BoundsComponent();
 		BodyComponent bodyComponent = new BodyComponent();
 		BuildingComponent buildingComponent = new BuildingComponent();
 		
@@ -144,13 +154,32 @@ public class BuildingGenerationSystem extends EntitySystem{
 		
 		bodyComponent.body.createFixture(fixtureDef);
 		
+		//Set the building component values
 		buildingComponent.width = width;
 		buildingComponent.height = height;
+		
+		//Set the bounds values
+		boundsComponent.bounds = new Rectangle();
+		
+		boundsComponent.bounds.x = x;
+		boundsComponent.bounds.y = Math.min(0, height - Textures.BUILDING_TEXTURE_HEIGHT);
+		boundsComponent.bounds.width = width;
+		boundsComponent.bounds.height = Math.max(height, Textures.BUILDING_TEXTURE_HEIGHT);
+		
+		//Set the texture
+		textureComponent.texture = texture;
+		
+		//Set the z-value
+		renderComponent.z = Constants.RENDER_ORDER.BUILDING;
 		
 		//Add all the components and add to the engine
 		building.add(bodyComponent);
 		building.add(buildingComponent);
+		building.add(textureComponent);
+		building.add(renderComponent);
+		building.add(boundsComponent);
 		
+		//Dispose the box to avoid memory leaks
 		buildingBox.dispose();
 		
 		engine.addEntity(building);
@@ -187,8 +216,8 @@ public class BuildingGenerationSystem extends EntitySystem{
 			//Gap from last building
 			float gap = random.nextInt((int) (Constants.BUILDING_GAP_MAX - Constants.BUILDING_GAP_MIN)) + Constants.BUILDING_GAP_MIN;
 			
-			//Width of building
-			float width = Constants.BUILDING_WIDTHS[random.nextInt(Constants.BUILDING_WIDTHS.length)];
+			//Width of building, relative to constants array of allowed widths
+			float width = random.nextInt(Constants.BUILDING_WIDTHS.length);
 			
 			//Height of building
 			float height;
@@ -212,15 +241,22 @@ public class BuildingGenerationSystem extends EntitySystem{
 			buildingValues[i][2] = height;
 			
 			//Set the next x-value
-			startX += gap + width;
+			startX += gap + Constants.BUILDING_WIDTHS[(int) width];
 			
 			//Set the nextHeight as the current height
 			startHeight = height;
 		}
 		
 		//Generate the buildings
+		//Texture region to avoid re-defining it multiple times
+		TextureRegion texture;
+		
 		for(int i = 0; i < Constants.BUILDINGS_PER_CHUNK; i++){
-			buildings[i] = createBuilding(buildingValues[i][0], buildingValues[i][1], buildingValues[i][2]);
+			//Get the correct texture
+			texture = Assets.regions.get(Textures.BUILDINGS[(int) buildingValues[i][1]]);
+			
+			//Create the building
+			buildings[i] = createBuilding(buildingValues[i][0], Constants.BUILDING_WIDTHS[(int)buildingValues[i][1]], buildingValues[i][2], texture);
 		}
 		
 		//Finally return the chunk

@@ -84,7 +84,7 @@ public class Constants {
 	public static class RENDER_ORDER{
 		
 		public static final int BACKGROUND = 1;
-		
+		public static final int BUILDING = 2;
 	}
 	
 	//Memory management / world generation settings
@@ -96,7 +96,7 @@ public class Constants {
 	public static final int[] BUILDING_WIDTHS = new int[]{10,15,20};
 	
 	public static final float BUILDING_START_HEIGHT = 5f;
-	public static final float BUILDING_START_WIDTH = 10f;
+	public static final float BUILDING_START_WIDTH = BUILDING_WIDTHS[0];
 	
 	public static final float BUILDING_MIN_HEIGHT = 2;
 	public static final float BUIILDING_MAX_HEIGHT = 18;
