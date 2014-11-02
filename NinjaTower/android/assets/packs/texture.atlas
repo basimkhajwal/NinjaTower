@@ -1,20 +1,27 @@
 
 texture.png
-size: 2108,746
+size: 2790,985
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 background-2
   rotate: false
-  xy: 2, 2
+  xy: 2, 241
   size: 1052, 744
   orig: 1052, 744
   offset: 0, 0
   index: -1
 background-start
   rotate: false
-  xy: 1056, 2
+  xy: 1056, 241
   size: 1052, 744
   orig: 1052, 744
+  offset: 0, 0
+  index: -1
+building-ten
+  rotate: false
+  xy: 2110, 2
+  size: 680, 983
+  orig: 680, 983
   offset: 0, 0
   index: -1
