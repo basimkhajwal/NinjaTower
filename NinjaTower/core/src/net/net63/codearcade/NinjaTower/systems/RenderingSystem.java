@@ -1,15 +1,18 @@
 package net.net63.codearcade.NinjaTower.systems;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import net.net63.codearcade.NinjaTower.components.BodyComponent;
 import net.net63.codearcade.NinjaTower.components.BoundsComponent;
+import net.net63.codearcade.NinjaTower.components.RenderComponent;
 import net.net63.codearcade.NinjaTower.components.TextureComponent;
 import net.net63.codearcade.NinjaTower.utils.Constants;
 
 import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.ComponentType;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,7 +24,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape.Type;
 
-public class RenderingSystem extends IteratingSystem{
+public class RenderingSystem extends EntitySystem{
 	
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
@@ -29,10 +32,13 @@ public class RenderingSystem extends IteratingSystem{
 	private ComponentMapper<TextureComponent> textureMapper;
 	private ComponentMapper<BodyComponent> bodyMapper;
 	private ComponentMapper<BoundsComponent> boundsMapper;
+	private ComponentMapper<RenderComponent> renderMapper;
 	
-	@SuppressWarnings("unchecked")
+	private ImmutableArray<Entity> entities;
+	private Comparator<Entity> comparator;
+	
 	public RenderingSystem(OrthographicCamera camera){
-		super(Family.getFor(ComponentType.getBitsFor(TextureComponent.class), ComponentType.getBitsFor(BodyComponent.class, BoundsComponent.class), ComponentType.getBitsFor()), Constants.SYSTEM_PRIORITIES.RENDERING);
+		super(Constants.SYSTEM_PRIORITIES.RENDERING);
 		
 		this.camera = camera;
 		batch = new SpriteBatch();
@@ -40,21 +46,35 @@ public class RenderingSystem extends IteratingSystem{
 		textureMapper = ComponentMapper.getFor(TextureComponent.class);
 		bodyMapper = ComponentMapper.getFor(BodyComponent.class);
 		boundsMapper = ComponentMapper.getFor(BoundsComponent.class);
+		renderMapper = ComponentMapper.getFor(RenderComponent.class);
 		
+		comparator = new Comparator<Entity>() {
+			
+			@Override
+			public int compare(Entity a, Entity b) {
+				
+				return (int) Math.signum(renderMapper.get(a).z - renderMapper.get(b).z);
+			}
+		};
 	}
 	
 	@Override
 	public void update(float deltaTime){
 		batch.setProjectionMatrix(camera.combined.cpy().scl(Constants.PIXELS_PER_METRE, Constants.PIXELS_PER_METRE, 0));
 		
+		Entity[] sortedEntities = entities.toArray();
+		
+		Arrays.sort(sortedEntities, comparator);
+		
 		batch.begin();
 		
-		super.update(deltaTime);
+		for(Entity e: sortedEntities){
+			processEntity(e, deltaTime);
+		}
 		
 		batch.end();
 	}
 	
-	@Override
 	public void processEntity(Entity entity, float deltaTime){
 		
 		TextureRegion texture = textureMapper.get(entity).texture;
