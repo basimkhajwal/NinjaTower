@@ -5,6 +5,7 @@ import net.net63.codearcade.NinjaTower.components.BodyComponent;
 import net.net63.codearcade.NinjaTower.components.BoundsComponent;
 import net.net63.codearcade.NinjaTower.components.CameraComponent;
 import net.net63.codearcade.NinjaTower.components.PlayerComponent;
+import net.net63.codearcade.NinjaTower.components.RenderComponent;
 import net.net63.codearcade.NinjaTower.components.StateComponent;
 import net.net63.codearcade.NinjaTower.components.TextureComponent;
 import net.net63.codearcade.NinjaTower.components.WorldComponent;
@@ -63,6 +64,7 @@ public class GameWorld {
 		BackgroundComponent bgComponent = new BackgroundComponent();
 		BoundsComponent boundsComponent = new BoundsComponent();
 		TextureComponent textureComponent = new TextureComponent();
+		RenderComponent renderComponent = new RenderComponent();
 		
 		bgComponent.backgroundNumber = backgroundNumber;
 		
@@ -76,9 +78,12 @@ public class GameWorld {
 		
 		textureComponent.texture = texture;
 		
+		renderComponent.z = Constants.RENDER_ORDER.BACKGROUND;
+		
 		background.add(bgComponent);
 		background.add(boundsComponent);
 		background.add(textureComponent);
+		background.add(renderComponent);
 		
 		engine.addEntity(background);
 	}

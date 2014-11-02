@@ -80,6 +80,13 @@ public class Constants {
 	
 	public static final float PLAYER_GRAVITY_SCALE = 5f;
 	
+	//Render order of the objects
+	public static class RENDER_ORDER{
+		
+		public static final int BACKGROUND = 1;
+		
+	}
+	
 	//Memory management / world generation settings
 	public static final int BUILDINGS_PER_CHUNK = 10;
 	

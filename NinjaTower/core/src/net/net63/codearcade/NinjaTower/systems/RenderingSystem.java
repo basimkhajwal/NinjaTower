@@ -10,8 +10,11 @@ import net.net63.codearcade.NinjaTower.components.TextureComponent;
 import net.net63.codearcade.NinjaTower.utils.Constants;
 
 import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.ComponentType;
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -48,6 +51,7 @@ public class RenderingSystem extends EntitySystem{
 		boundsMapper = ComponentMapper.getFor(BoundsComponent.class);
 		renderMapper = ComponentMapper.getFor(RenderComponent.class);
 		
+		//Comparator to put them in the right z-order
 		comparator = new Comparator<Entity>() {
 			
 			@Override
@@ -58,16 +62,27 @@ public class RenderingSystem extends EntitySystem{
 		};
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void addedToEngine(Engine engine){
+		//Get entities that have a texture component and a render component and either a body or bounds component
+		entities = engine.getEntitiesFor(Family.getFor(ComponentType.getBitsFor(TextureComponent.class, RenderComponent.class), ComponentType.getBitsFor(BodyComponent.class, BoundsComponent.class), ComponentType.getBitsFor()));
+	}
+	
 	@Override
 	public void update(float deltaTime){
+		//Set the scaled projection matrix
 		batch.setProjectionMatrix(camera.combined.cpy().scl(Constants.PIXELS_PER_METRE, Constants.PIXELS_PER_METRE, 0));
 		
-		Entity[] sortedEntities = entities.toArray();
+		//Get the entities as an array
+		Entity[] sortedEntities = entities.toArray(Entity.class);
 		
+		//Sort them in z-order
 		Arrays.sort(sortedEntities, comparator);
 		
 		batch.begin();
 		
+		//Iterate through all the entities and process them
 		for(Entity e: sortedEntities){
 			processEntity(e, deltaTime);
 		}
@@ -77,18 +92,26 @@ public class RenderingSystem extends EntitySystem{
 	
 	public void processEntity(Entity entity, float deltaTime){
 		
+		//Get the texture of the entity
 		TextureRegion texture = textureMapper.get(entity).texture;
 		
-		if(bodyMapper.has(entity)){
+		//Check if it has a bounds, then draw using that, otherwise use a body which it must have
+		if(boundsMapper.has(entity)){
+			Rectangle bounds = boundsMapper.get(entity).bounds;
+			
+			batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
+
+		}else{
+			
 			Body body = bodyMapper.get(entity).body;
 			
-			Vector2 position = new Vector2();
+			//Get the position of the body
+			Vector2 position = body.getPosition();
 			
-			position.x = body.getPosition().x;
-			position.y = body.getPosition().y;
-			
+			//Make a dimensions vector
 			Vector2 dimensions = new Vector2();
 			
+			//Iterate through all the fixtures and draw the body with the position but different dimensions
 			for(Fixture fixture: body.getFixtureList()){
 				
 				if(fixture.getType() == Type.Polygon){
@@ -112,10 +135,6 @@ public class RenderingSystem extends EntitySystem{
 				
 				batch.draw(texture, position.x - dimensions.x, position.y - dimensions.y, dimensions.x * 2, dimensions.y * 2);
 			}
-		}else{
-			Rectangle bounds = boundsMapper.get(entity).bounds;
-			
-			batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
 		}
 		
 	}
