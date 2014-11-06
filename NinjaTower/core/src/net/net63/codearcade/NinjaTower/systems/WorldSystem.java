@@ -6,9 +6,8 @@ import net.net63.codearcade.NinjaTower.utils.Constants;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 
-public class WorldSystem extends IteratingSystem{
+public class WorldSystem extends PausedIteratingSystem{
 
 	private ComponentMapper<WorldComponent> wm;
 	

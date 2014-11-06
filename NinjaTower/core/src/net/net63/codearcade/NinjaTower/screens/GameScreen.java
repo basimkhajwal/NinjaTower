@@ -49,6 +49,7 @@ public class GameScreen extends AbstractScreen {
 		
 		gameWorld = new GameWorld(engine);
 		gameWorld.create();
+		
 	}
 	
 	@Override
@@ -81,21 +82,23 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	public void updatePaused(float delta){
-		if(Gdx.input.justTouched() || Gdx.input.isButtonPressed(Keys.P)){
+		engine.update(delta);
+		
+		if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Keys.P)){
 			state = GAME_RUNNING;
+			resumeSystems();
 		}
-		
-		
-		
 	}
 	
 	public void pauseSystems(){
-		
+		engine.getSystem(PlayerMovementSystem.class).pause();
+		engine.getSystem(WorldSystem.class).pause();
 		
 	}
 	
 	public void resumeSystems(){
-		
+		engine.getSystem(PlayerMovementSystem.class).resume();
+		engine.getSystem(WorldSystem.class).resume();
 	}
 	
 	public void updateRunning(float delta){
@@ -107,6 +110,13 @@ public class GameScreen extends AbstractScreen {
 		}
 		
 		engine.update(delta);
+		
+		
+		if(Gdx.input.isKeyJustPressed(Keys.P)){
+			state = GAME_PAUSED;
+			pauseSystems();
+		}
+		
 	}
 
 }

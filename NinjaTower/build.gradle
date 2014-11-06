@@ -17,7 +17,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = 'NinjaTower'
-        gdxVersion = '1.4.1'
+        gdxVersion = '1.4.2-SNAPSHOT'
         roboVMVersion = '0.0.14'
     }
 

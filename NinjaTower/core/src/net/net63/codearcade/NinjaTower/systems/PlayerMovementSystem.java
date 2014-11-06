@@ -8,11 +8,10 @@ import net.net63.codearcade.NinjaTower.utils.Constants;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
-public class PlayerMovementSystem extends IteratingSystem{
+public class PlayerMovementSystem extends PausedIteratingSystem{
 	
 	private ComponentMapper<BodyComponent> bm;
 	private ComponentMapper<StateComponent> sm;
@@ -28,7 +27,14 @@ public class PlayerMovementSystem extends IteratingSystem{
 		bm = ComponentMapper.getFor(BodyComponent.class);
 		sm = ComponentMapper.getFor(StateComponent.class);
 	}
-
+	
+	@Override
+	public void update(float deltaTime){
+		if(! isPaused()){
+			super.update(deltaTime);
+		}
+	}
+	
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
 		BodyComponent bodyComponent = bm.get(entity);
