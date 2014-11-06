@@ -5,6 +5,7 @@ import java.util.Random;
 import net.net63.codearcade.NinjaTower.components.BodyComponent;
 import net.net63.codearcade.NinjaTower.components.BoundsComponent;
 import net.net63.codearcade.NinjaTower.components.BuildingComponent;
+import net.net63.codearcade.NinjaTower.components.CoinComponent;
 import net.net63.codearcade.NinjaTower.components.PlayerComponent;
 import net.net63.codearcade.NinjaTower.components.RenderComponent;
 import net.net63.codearcade.NinjaTower.components.TextureComponent;
@@ -24,23 +25,31 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class BuildingGenerationSystem extends EntitySystem{
 	
+	//The chunks
 	public Entity[] previousChunk;
 	public Entity[] currentChunk;
 	public Entity[] nextChunk;
 	
+	//The game engine
 	private Engine engine;
+	
+	//Random for making the buildings
 	private Random random;
 	
+	//The players in the world
 	private ImmutableArray<Entity> players;
 	
+	//ChangeX when to change chunks at a certain point
 	private float changeX;
 	
+	//The component mappers
 	private ComponentMapper<BodyComponent> bodyMapper;
 	private ComponentMapper<WorldComponent> worldMapper;
 	private ComponentMapper<BuildingComponent> buildingMapper;
@@ -49,11 +58,12 @@ public class BuildingGenerationSystem extends EntitySystem{
 	public BuildingGenerationSystem(){
 		super(Constants.SYSTEM_PRIORITIES.BUILDING_GENERATION);
 		
+		//Initialise all the mappers
 		bodyMapper = ComponentMapper.getFor(BodyComponent.class);
 		worldMapper = ComponentMapper.getFor(WorldComponent.class);
 		buildingMapper = ComponentMapper.getFor(BuildingComponent.class);
 		
-		
+		//Create a new random with a time-set seed that will be different each time
 		random = new Random(System.currentTimeMillis());
 	}
 	
@@ -61,35 +71,70 @@ public class BuildingGenerationSystem extends EntitySystem{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addedToEngine(Engine engine){
-		this.engine = engine;
+		this.engine = engine; //Set the engine
 		
+		//Get the players
 		players = engine.getEntitiesFor(Family.getFor(PlayerComponent.class));
 	}
 	
-	
+	//Function when new level is being created
 	public void create(){
+		//Set the start building to give player time to adjust
 		createBuilding(Constants.PLAYER_START_X, Constants.BUILDING_START_WIDTH,Constants.BUILDING_START_HEIGHT, Assets.regions.get(Textures.BUILDINGS[0]));
 		
+		//Initiliase the next chunk
 		nextChunk = generateChunk(Constants.PLAYER_START_X + Constants.BUILDING_START_WIDTH, Constants.BUILDING_START_HEIGHT);
 		
+		//Update the chunks
 		updateChunks();
 	}
 	
+	//Create a coin in the game
+	public Entity createCoin(){
+		Entity coin = new Entity();
+		
+		World world = getWorld();
+		
+		CoinComponent coinComponent = new CoinComponent();
+		BodyComponent bodyComponent = new BodyComponent();
+		
+		BodyDef bodyDef = new BodyDef();
+		CircleShape shape = new CircleShape();
+		
+		shape.setRadius(5f);
+		
+		bodyComponent.body = world.createBody(bodyDef);
+		shape.dispose();
+		
+		coin.add(coinComponent);
+		coin.add(bodyComponent);
+		
+		engine.addEntity(coin);
+		
+		return coin;
+	}
+	
+	//Function to switch around chunks and make a new one
 	public void updateChunks(){
+		//Check if it isn't null and if not then destroy all un-needed buildings
 		if(previousChunk != null){
 			destroyChunk(previousChunk);
 		}
 		
+		//Move the chunks down one
 		previousChunk = currentChunk;
 		currentChunk = nextChunk;
 		
+		//Create a new chunk
 		nextChunk = createChunk(currentChunk);
 		
+		//Make a different changeX point
 		updateChangeX(currentChunk);
 	}
 	
 	//Utility function to update the changeX where new chunks are created
 	public void updateChangeX(Entity[] chunk){
+		//Get the last entity in the chunk
 		Entity last = chunk[chunk.length - 1];
 		
 		Body body = bodyMapper.get(last).body;
@@ -101,23 +146,29 @@ public class BuildingGenerationSystem extends EntitySystem{
 	}
 	
 	@SuppressWarnings("unchecked")
+	//Utility function to get the Box2D world out of the component
 	private World getWorld(){
+		//Make sure engine isn't null
 		if(engine == null){
 			return null;
 		}
 		
+		//Get the entity
 		Entity w = engine.getEntitiesFor(Family.getFor(WorldComponent.class)).first();
 		
+		//Return the world component's world
 		return worldMapper.get(w).world;
 	}
 	
 	@Override
 	public void update(float deltaTime){
-		
+		//Get the current player
 		Entity player = players.peek();
 		
+		//Get the body of the player
 		Body body  = bodyMapper.get(player).body;
 		
+		//Check if the x position has reached the stage where the chunks are moved forward
 		if(body.getPosition().x > changeX){
 			updateChunks();
 		}
