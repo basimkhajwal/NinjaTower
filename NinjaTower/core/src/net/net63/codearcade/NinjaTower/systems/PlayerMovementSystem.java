@@ -18,7 +18,6 @@ public class PlayerMovementSystem extends IteratingSystem{
 	private ComponentMapper<StateComponent> sm;
 	
 	private boolean isTouched;
-
 	
 	@SuppressWarnings("unchecked")
 	public PlayerMovementSystem(){
