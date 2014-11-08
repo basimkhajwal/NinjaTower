@@ -8,6 +8,9 @@ public class Textures {
 	public static final String BACKGROUND_START = "background-start";
 	public static final String BACKGROUND_2 = "background-2";
 	
+	public static final String PAUSE_DOWN = "pause-down";
+	public static final String PAUSE_UP = "pause-up";
+	
 	//The texture height of the building, to keep it from being resized, in game metres
 	public static final float BUILDING_TEXTURE_HEIGHT = 983 * Constants.METRES_PER_PIXEL;
 	
