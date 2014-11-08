@@ -57,8 +57,8 @@ public class MainMenuScreen extends AbstractScreen{
 		Assets.loadBefore();
 		
 		//Get the bitmap fonts
-		fontFifty = Assets.turtleFonts[Constants.FONT_SIZE.FIFTY];
-		fontHundred = Assets.turtleFonts[Constants.FONT_SIZE.HUNDRED];
+		fontFifty = Assets.font[Constants.FONT_SIZE.FIFTY];
+		fontHundred = Assets.font[Constants.FONT_SIZE.HUNDRED];
 		
 		//Set the state to loading
 		state = STATE_LOADING;

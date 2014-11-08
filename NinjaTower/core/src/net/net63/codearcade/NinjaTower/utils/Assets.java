@@ -27,7 +27,7 @@ public class Assets {
 	public static TextureAtlas textureAtlas;
 	public static HashMap<String, AtlasRegion> regions;
 	
-	public static BitmapFont[] turtleFonts;
+	public static BitmapFont[] font;
 	
 	
 	//Booleans for checking if the sections are loaded or not
@@ -55,19 +55,19 @@ public class Assets {
 		splashBackground = assetManager.get(Constants.SPLASH_BACKGROUND, Texture.class);
 		
 		//Load all the fonts
-		turtleFonts = new BitmapFont[Constants.FONT_SIZES.length];
+		font = new BitmapFont[Constants.FONT_SIZES.length];
 		
 		//Get the font generator and make a new font parameters class
 		FreeTypeFontGenerator turtleFontGenerator = assetManager.get(Constants.TURTLE_FONT, FreeTypeFontGenerator.class);
 		FreeTypeFontParameter turtleFontParameters = new FreeTypeFontParameter();
 		
 		//Loop through all the font sizes
-		for(int i = 0; i < turtleFonts.length; i++){
+		for(int i = 0; i < font.length; i++){
 			//Set the size to the correct size
 			turtleFontParameters.size = Constants.FONT_SIZES[i];
 			
 			//Load the bitmap font
-			turtleFonts[i] = turtleFontGenerator.generateFont(turtleFontParameters);
+			font[i] = turtleFontGenerator.generateFont(turtleFontParameters);
 		}
 		
 		//Dispose of the generator, it isn't needed anymore
