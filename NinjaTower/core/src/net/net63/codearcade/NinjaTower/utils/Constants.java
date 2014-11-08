@@ -44,7 +44,10 @@ public class Constants {
 	//Number of pixels in a metre for the normal screen width
 	public static final float PIXEL_SIZE_NORMAL = 30f;
 	
-	public static final float PIXELS_PER_METRE = PIXEL_SIZE_NORMAL * (Gdx.graphics.getWidth() / SCREEN_WIDTH);
+	public static final float SCREEN_WIDTH_RATIO = Gdx.graphics.getWidth() / SCREEN_WIDTH;
+	public static final float SCREEN_HEIGHT_RATIO = Gdx.graphics.getHeight() / SCREEN_HEIGHT;
+	
+	public static final float PIXELS_PER_METRE = PIXEL_SIZE_NORMAL * (SCREEN_WIDTH_RATIO);
 	public static final float METRES_PER_PIXEL = 1/PIXELS_PER_METRE;
 	
 	//The world width and height in metres
@@ -91,7 +94,7 @@ public class Constants {
 	public static final int BUILDINGS_PER_CHUNK = 10;
 	
 	public static final float BUILDING_GAP_MIN = 2f;
-	public static final float BUILDING_GAP_MAX = 8f;
+	public static final float BUILDING_GAP_MAX = 12f;
 	
 	public static final int[] BUILDING_WIDTHS = new int[]{10,15,20};
 	
@@ -102,7 +105,7 @@ public class Constants {
 	public static final float BUIILDING_MAX_HEIGHT = 18;
 	
 	public static final float BUILDING_MIN_HEIGHT_CHANGE = 2;
-	public static final float BUILDING_MAX_HEIGHT_CHANGE = 7;
+	public static final float BUILDING_MAX_HEIGHT_CHANGE = 10;
 	
 	//Parallax scrolling settings
 	public static final float BACKGROUND_SPEED = 0.8f; //Relative to the player speed
@@ -110,5 +113,14 @@ public class Constants {
 	//Menu Screen Settings
 	public static final float TIME_TO_TRANSITION = 3f;
 	public static final float TIME_FLASHING = 0.5f;
+	
+	//GUI Settingss
+	public static final float OVERLAY_OPACITY = 0.7f;
+	
+	public static final float PAUSE_BUTTON_WIDTH = 50f;
+	public static final float PAUSE_BUTTON_HEIGHT = 50f;
+	
+	public static final float PAUSE_PADDING_X = 10f;
+	public static final float PAUSE_PADDING_Y = 10f;
 	
 }
