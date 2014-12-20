@@ -1,4 +1,4 @@
 NinjaTower
 ==========
 
-A simple side-scrolling game made in Java using libGDX targeting mainly Android
+A simple side-scrolling game made in Java using libGDX targeting mainly Android and mobile operating systems.
